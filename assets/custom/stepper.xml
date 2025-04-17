@@ -29,7 +29,7 @@
 				<body name="custom_robot_1/body_ee" pos="0 0 -0.1">
                     <joint axis="0 1 0" limited="true" name="custom_robot_1/joint_2" pos="0 0 0" damping="0.005" range="-0.45 0.45" type="slide"/>
                     <inertial pos="0 0 0" mass="0.1" diaginertia="0.0008 0.0023 0.0023"/>
-                    <geom name="custom_robot_1/ee" type="cylinder"  rgba="0.3 0.3 0.3 0.9"
+                    <geom name="custom_robot_1/ee" solref="0.002 1" solimp="0.9 0.95 0.001 0.5 2" type="cylinder"  rgba="0.3 0.3 0.3 0.9"
                         size="0.04815 0.03" pos="0 0 0.0505" friction="0 0 0" class="robot"/>
                 </body>
             </body>

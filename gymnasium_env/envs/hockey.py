@@ -22,8 +22,9 @@ steps_y = steps_per_mm * y
 """
 
 """
-train: python -m rl_zoo3.train --algo ppo  --env gymnasium_env/Hockey-v0 --tensorboard-log logs/tensorboard
-enjoy: python -m rl_zoo3.enjoy --algo ppo --env gymnasium_Hockey-v0 --folder logs -n 5000                 
+train: python -m rl_zoo3.train --algo ppo  --env gymnasium_env/Hockey-v0 --tensorboard-log tensorboard --device cpu --save-freq 600000 -P
+enjoy: python -m rl_zoo3.enjoy --algo ppo --env gymnasium_env/Hockey-v0 --exp-id 0 --folder logs -n 5000      
+python -m rl_zoo3.enjoy --algo ppo --env gymnasium_env/Hockey-v0 --folder logs --exp-id 9  --load-checkpoint 1800000 -n 10000           
 
 qpos: 
     puck_pos_x
@@ -58,15 +59,17 @@ class HockeyEnv(MujocoEnv, utils.EzPickle):
 
     def __init__(
             self,
-            xml_file: str = "/Users/francesco/Desktop/hockey/assets/custom/custom.xml",
+            xml_file: str = "/home/three102/hockey/assets/custom/custom.xml",
             frame_skip: int = 1,
             default_camera_config: Dict[str, Union[float, int]] = DEFAULT_CAMERA_CONFIG,
             reset_noise_scale: float = 0.01,
+            device: str = "cpu",
             **kwargs,
     ):
         utils.EzPickle.__init__(self, xml_file, frame_skip, reset_noise_scale, **kwargs)
         observation_space = Box(low=-np.inf, high=np.inf, shape=(10,), dtype=np.float64)
         self.hit = False
+        self.goal = False
         self._reset_noise_scale = reset_noise_scale
         MujocoEnv.__init__(
             self,
@@ -91,11 +94,37 @@ class HockeyEnv(MujocoEnv, utils.EzPickle):
             "qvel": self.data.qvel.size,
         }
 
+    def _hit_reward(self):  
+        rew = 0             
+        if self.data.ncon != 0:  # Threshold for "hitting" the puck
+            for i in range(self.data.ncon):  # Iterate through all active contacts
+                if self.data.contact[i].geom1 == 10 and self.data.contact[i].geom2 == 13:
+                    if self.hit == False:
+                        rew = 100.0
+                        self.hit = True
+
+        return rew
+    
+    def _goal_reward(self,puck_pos_x_normalized, puck_pos_y):
+        rew = 0
+        if self.goal == False and puck_pos_x_normalized >= 0.95 and abs(puck_pos_y) <= 0.1:
+                rew = 100.0
+                self.goal = True
+        return rew
+
+    def _distance_reward(self, puck_pos_x_normalized, puck_pos_y_normalized, mallet_pos_x_normalized, mallet_pos_y_normalized):
+        rew = 0
+        # Calculate the Euclidean distance between the normalized positions
+        distance = np.sqrt(
+            (puck_pos_x_normalized - mallet_pos_x_normalized) ** 2 +
+            (puck_pos_y_normalized - mallet_pos_y_normalized) ** 2
+        )
+        rew = -distance
+        return rew
     
     def get_reward(self, obs):
         reward = 0.0
         terminated = False
-        # Extract positions from the observation
         puck_pos_x = obs[0]
         puck_pos_y = obs[1]
         mallet_pos_x = obs[3]
@@ -106,23 +135,16 @@ class HockeyEnv(MujocoEnv, utils.EzPickle):
         mallet_pos_x_normalized = mallet_pos_x  # Normalize from [0, 0.5] to [0, 1]
         mallet_pos_y_normalized = (mallet_pos_y + 0.45) / 0.9 # Normalize from [0, 0.5] to [0, 1]
         
-        # Calculate the Euclidean distance between the normalized positions
-        distance = np.sqrt(
-            (puck_pos_x_normalized - mallet_pos_x_normalized) ** 2 +
-            (puck_pos_y_normalized - mallet_pos_y_normalized) ** 2
-        )
-        # Reward is inversely proportional to the distance (closer is better)
+        # Calculate the distance reward
+        distance_reward = self._distance_reward(puck_pos_x_normalized, puck_pos_y_normalized, mallet_pos_x_normalized, mallet_pos_y_normalized)
         if self.hit == False:
-            reward -= distance
-        else:
-            reward += 0.1
+            reward += distance_reward
         
-        if self.data.ncon != 0:  # Threshold for "hitting" the puck
-            for i in range(self.data.ncon):  # Iterate through all active contacts
-                if self.data.contact[i].geom1 == 10 and self.data.contact[i].geom2 == 13:
-                    if self.hit == False:
-                        reward += 100.0
-                        self.hit = True
+        # Extract positions from the observation
+        hit_reward = self._hit_reward()
+        goal_reward = self._goal_reward(puck_pos_x_normalized, puck_pos_y)
+
+        reward += hit_reward  + goal_reward
 
 
         return reward
@@ -134,9 +156,9 @@ class HockeyEnv(MujocoEnv, utils.EzPickle):
         terminated = False
         observation = self._get_obs()
         reward = self.get_reward(observation)
-        info = {"cusotm":0}
-        
-        if self.data.qpos[0] > 0.90:
+        info = {"custom": 0}
+
+        if self.data.qpos[0] > 1.10:
             terminated = True
         #if self.data.qpos[0] < -0.90:
         #    terminated = True
@@ -149,7 +171,11 @@ class HockeyEnv(MujocoEnv, utils.EzPickle):
     
     def reset_model(self):
         self.hit = False
+        self.goal = False
         self.step_count = 0
+        
+
+
         qpos = self.init_qpos
         qvel = self.init_qvel
         # Add noise to the initial velocity
