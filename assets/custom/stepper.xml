@@ -21,10 +21,10 @@
     <worldbody>
         <body name="custom_robot_1/body_1" pos="-0.5 0.55 0.08">
 			<geom pos="0 0 0" quat="0.7071 0 0.7071 0" size="0.01 0.438" type="capsule" class="robot"/>
-            <inertial pos="0 0 0" mass="1" diaginertia="0.05 0.018 0.044"/>
+            <inertial pos="0 0 0" mass="0.01" diaginertia="0.05 0.018 0.044"/>
             <body name="custom_robot_1/body_2" pos="-0.40 -0.55 0">
 			    <joint axis="1 0 0" limited="true" name="custom_robot_1/joint_1" pos="0 0 0" damping="0.005" range="0 1" type="slide"/>
-                <inertial pos="0 0 0" mass="1" diaginertia="0.05 0.018 0.044"/>
+                <inertial pos="0 0 0" mass="0.01" diaginertia="0.05 0.018 0.044"/>
                 <geom pos="0 0 0" quat="0.7071 0.7071 0 0" size="0.01 0.500" type="capsule" class="robot"/>
 				<body name="custom_robot_1/body_ee" pos="0 0 -0.1">
                     <joint axis="0 1 0" limited="true" name="custom_robot_1/joint_2" pos="0 0 0" damping="0.005" range="-0.45 0.45" type="slide"/>
@@ -37,8 +37,8 @@
     </worldbody>
 
     <actuator>
-        <motor name="custom_robot_1/joint_1" joint="custom_robot_1/joint_1" ctrlrange="-1 1" gear="100"/>
-        <motor name="custom_robot_1/joint_2" joint="custom_robot_1/joint_2" ctrlrange="-1 1" gear="100"/>
+        <motor name="custom_robot_1/joint_1" joint="custom_robot_1/joint_1" ctrlrange="-1 1" gear="50"/>
+        <motor name="custom_robot_1/joint_2" joint="custom_robot_1/joint_2" ctrlrange="-1 1" gear="50"/>
         <!-- <motor ctrllimited="true" ctrlrange="-1 1" gear="100" joint="slider2" name="slide2"/> -->
     </actuator>
 </mujoco>

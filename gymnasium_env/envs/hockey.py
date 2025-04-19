@@ -23,7 +23,7 @@ steps_y = steps_per_mm * y
 
 """
 train: python -m rl_zoo3.train --algo ppo  --env gymnasium_env/Hockey-v0 --tensorboard-log tensorboard --device cpu --save-freq 600000 -P
-enjoy: python -m rl_zoo3.enjoy --algo ppo --env gymnasium_env/Hockey-v0 --exp-id 0 --folder logs -n 5000      
+python -m rl_zoo3.enjoy --algo ppo --env gymnasium_env/Hockey-v0 --exp-id 0 --folder logs -n 5000      
 python -m rl_zoo3.enjoy --algo ppo --env gymnasium_env/Hockey-v0 --folder logs --exp-id 9  --load-checkpoint 1800000 -n 10000           
 
 qpos: 
@@ -143,7 +143,16 @@ class HockeyEnv(MujocoEnv, utils.EzPickle):
         # Extract positions from the observation
         hit_reward = self._hit_reward()
         goal_reward = self._goal_reward(puck_pos_x_normalized, puck_pos_y)
-
+        if self.hit == True:
+            # minimize distance from the puck to the goal
+            dist_x_goal = abs(1 - puck_pos_x_normalized) 
+            dist_y_goal = abs(puck_pos_y_normalized)
+            distance = np.sqrt(
+                (dist_x_goal) ** 2 +
+                (dist_y_goal) ** 2
+            )
+            reward += -distance
+        
         reward += hit_reward  + goal_reward
 
 
@@ -158,10 +167,11 @@ class HockeyEnv(MujocoEnv, utils.EzPickle):
         reward = self.get_reward(observation)
         info = {"custom": 0}
 
+        # the pos are NOT normalized
         if self.data.qpos[0] > 1.10:
             terminated = True
-        #if self.data.qpos[0] < -0.90:
-        #    terminated = True
+        if self.data.qpos[0] >= 0.94 and abs(self.data.qpos[1]) > 0.1:
+            terminated = True
 
         if self.render_mode == "human":
             self.render()

@@ -6,7 +6,7 @@ env = gym.make("gymnasium_env/Hockey-v0", render_mode="rgb_array")
 env = gym.wrappers.TimeLimit(env, max_episode_steps=200)
 
 model = PPO("MlpPolicy",env,verbose=1)
-print(model.policy)
+#print(model.policy)
 
 model.learn(total_timesteps=50_000)
 
