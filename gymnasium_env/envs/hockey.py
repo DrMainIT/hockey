@@ -59,7 +59,7 @@ class HockeyEnv(MujocoEnv, utils.EzPickle):
 
     def __init__(
             self,
-            xml_file: str = "/home/three102/hockey/assets/custom/custom.xml",
+            xml_file: str = "/Users/francesco/Desktop/hockey/assets/custom/custom.xml", #/home/three102/hockey/assets/custom/custom.xml
             frame_skip: int = 1,
             default_camera_config: Dict[str, Union[float, int]] = DEFAULT_CAMERA_CONFIG,
             reset_noise_scale: float = 0.01,

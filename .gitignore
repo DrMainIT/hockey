@@ -3,6 +3,9 @@
 venv
 tensorboard
 logs
+ppo_policy_weights.npy
+ppo_policy.onnx
+ppo_hockey1.zip
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
