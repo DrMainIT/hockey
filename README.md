@@ -2,7 +2,7 @@
 
 A reinforcement learning project for a custom MuJoCo air hockey environment. The policy is trained with Proximal Policy Optimization (PPO) using Stable-Baselines3 and a Gymnasium environment.
 
-This folder contains the air hockey project recovered from the larger workspace. The adjacent `air_hockey_challenge*`, `drl_air_hockey`, and `dreamerv3*` folders are separate framework experiments and are not required by this PPO implementation.
+This folder contains the air hockey project recovered from the larger workspace.
 
 ## What is here
 
