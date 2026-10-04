@@ -2,7 +2,6 @@
 
 A reinforcement learning project for a custom MuJoCo air hockey environment. The policy is trained with Proximal Policy Optimization (PPO) using Stable-Baselines3 and a Gymnasium environment.
 
-This folder contains the air hockey project recovered from the larger workspace.
 
 ## What is here
 
