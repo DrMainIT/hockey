@@ -68,7 +68,7 @@ This writes scalar charts to `results/figures/`. The saved event file is preserv
 
 The project includes eight Stable-Baselines3 run folders from `gymnasium_env-Hockey-v0_1` through `_8`. The later runs record `MlpPolicy`, 5 environments, and a configured budget of 1,000,000 timesteps. The retained `PPO_1` TensorBoard event file and checkpoint correspond to the recovered long run. Evaluation rewards varied between runs, so the checkpoint is presented as an experimental result rather than a validated or competition-ready agent.
 
-[Download the demo video](assets/video.mp4)
+[Download the demo video](media/video.mp4)
 
 ## Hardware experiments
 
